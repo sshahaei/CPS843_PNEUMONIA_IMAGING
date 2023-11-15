@@ -18,13 +18,10 @@ import cv2
 import seaborn as sns
 from tqdm import tqdm
 from sklearn.utils import shuffle
-from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 from sklearn.metrics import accuracy_score, confusion_matrix
 import keras
 from keras.preprocessing import image
-from keras.models import Sequential, Model
-from keras.layers import Dropout, MaxPooling2D, Dense, Conv2D, Activation, Flatten
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.applications import ResNet50V2
 import warnings
@@ -45,7 +42,8 @@ random_seed = 42            # Seed for some random operations, for reproducibili
 #number of chest Xrays in test folder: 234 normal, 390 pneumonia
 
 #INSTRUCTIONS UPLOADING KAGGLE DATASET TO GOOGLE COLAB: https://www.geeksforgeeks.org/how-to-import-kaggle-datasets-directly-into-google-colab/
-
+!pip install opendatasets
+!pip install pandas
 import opendatasets as od
 import pandas
 od.download(
@@ -57,6 +55,7 @@ class_names = ['NORMAL', 'PNEUMONIA']
 # Number of images:
 num_train_imgs = 1341 + 3875
 num_val_imgs = 234 + 390
+#SOURCE CODE FOR TRAIN STEPS CALCULATIONS: https://github.com/PacktPublishing/Hands-On-Computer-Vision-with-TensorFlow-2/blob/master/Chapter04/ch4_nb2_reuse_models_from_keras_apps.ipynb
 train_steps_per_epoch = math.ceil(num_train_imgs / batch_size)
 val_steps_per_epoch   = math.ceil(num_val_imgs / batch_size)
 
@@ -89,6 +88,7 @@ test_ds = tf.keras.utils.image_dataset_from_directory(
   batch_size=batch_size, shuffle=True,
     )
 
+#SOURCE CODE FOR PLOTTING: https://www.tensorflow.org/tutorials/load_data/images
 #visualizing first nine images from the training set
 import matplotlib.pyplot as plt
 
@@ -125,6 +125,7 @@ train_ds = train_ds.cache().prefetch(buffer_size=AUTOTUNE)
 test_ds = test_ds.cache().prefetch(buffer_size=AUTOTUNE)
 
 #apply training now to the data using the model, use Adam optimizer and Sparse Categorical Cross Entropy for loss function, add some metrics of performance
+#SOURCE CODE: https://www.tensorflow.org/tutorials/load_data/images
 model.compile(
   optimizer='adam',
   loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
@@ -132,6 +133,6 @@ model.compile(
 
 model.fit(
   train_ds,
-  validation_data=train_ds,
-  epochs=5
+  validation_data=test_ds,
+  epochs=3
 )
